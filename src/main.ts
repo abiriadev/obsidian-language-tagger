@@ -1,0 +1,82 @@
+import { Notice, Plugin } from 'obsidian'
+import {
+	DEFAULT_SETTINGS,
+	LanguageTaggerPluginSettings,
+	LanguageTaggerPluginSettingTab,
+} from './settings'
+
+const koRegex = /[ㄱ-ㅎ가-힣]/
+
+export default class LanguageTaggerPlugin extends Plugin {
+	settings: LanguageTaggerPluginSettings
+
+	async updateLanguageTags() {}
+
+	async onload() {
+		await this.loadSettings()
+		{
+			const list = this.app.vault.getMarkdownFiles()
+
+			for (const tfile of list) {
+				const content = await this.app.vault.read(tfile)
+
+				// filter out non-top level notes
+				if (tfile.parent !== null) continue
+
+				if (koRegex.test(content) || koRegex.test(tfile.basename)) {
+					this.app.fileManager.processFrontMatter(
+						tfile,
+						frontmatter => {
+							frontmatter['lang'] = 'ko'
+						},
+					)
+				} else {
+					this.app.fileManager.processFrontMatter(
+						tfile,
+						frontmatter => {
+							frontmatter['lang'] = 'en'
+						},
+					)
+				}
+			}
+
+			new Notice('Language has tags has been applied.')
+		}
+
+		// This adds a simple command that can be triggered anywhere
+		this.addCommand({
+			id: 'update-language-tags',
+			name: 'Update language tags',
+			callback: () => {
+				this.updateLanguageTags()
+			},
+		})
+
+		// This adds a settings tab so the user can configure various aspects of the plugin
+		this.addSettingTab(new LanguageTaggerPluginSettingTab(this.app, this))
+
+		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
+		this.registerInterval(
+			window.setInterval(
+				() => {
+					this.updateLanguageTags()
+				},
+				5 * 60 * 1000,
+			),
+		)
+	}
+
+	onunload() {}
+
+	async loadSettings() {
+		this.settings = Object.assign(
+			{},
+			DEFAULT_SETTINGS,
+			(await this.loadData()) as Partial<LanguageTaggerPluginSettings>,
+		)
+	}
+
+	async saveSettings() {
+		await this.saveData(this.settings)
+	}
+}

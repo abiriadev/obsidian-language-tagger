@@ -1,0 +1,11 @@
+{
+	"id": "obsidian-language-tagger",
+	"name": "Obsidian language tagger",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "Naive language tagger plugin",
+	"author": "Abiria",
+	"authorUrl": "https://github.com/abiriadev",
+	"fundingUrl": "https://github.com/sponsors/abiriadev",
+	"isDesktopOnly": false
+}
