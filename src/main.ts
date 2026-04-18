@@ -10,38 +10,31 @@ const koRegex = /[ㄱ-ㅎ가-힣]/
 export default class LanguageTaggerPlugin extends Plugin {
 	settings: LanguageTaggerPluginSettings
 
-	async updateLanguageTags() {}
+	async updateLanguageTags() {
+		const list = this.app.vault.getMarkdownFiles()
+
+		for (const tfile of list) {
+			const content = await this.app.vault.read(tfile)
+
+			// filter out non-top level notes
+			if (tfile.parent !== null) continue
+
+			if (koRegex.test(content) || koRegex.test(tfile.basename)) {
+				this.app.fileManager.processFrontMatter(tfile, frontmatter => {
+					frontmatter['lang'] = 'ko'
+				})
+			} else {
+				this.app.fileManager.processFrontMatter(tfile, frontmatter => {
+					frontmatter['lang'] = 'en'
+				})
+			}
+		}
+
+		new Notice('Language has tags has been applied.')
+	}
 
 	async onload() {
 		await this.loadSettings()
-		{
-			const list = this.app.vault.getMarkdownFiles()
-
-			for (const tfile of list) {
-				const content = await this.app.vault.read(tfile)
-
-				// filter out non-top level notes
-				if (tfile.parent !== null) continue
-
-				if (koRegex.test(content) || koRegex.test(tfile.basename)) {
-					this.app.fileManager.processFrontMatter(
-						tfile,
-						frontmatter => {
-							frontmatter['lang'] = 'ko'
-						},
-					)
-				} else {
-					this.app.fileManager.processFrontMatter(
-						tfile,
-						frontmatter => {
-							frontmatter['lang'] = 'en'
-						},
-					)
-				}
-			}
-
-			new Notice('Language has tags has been applied.')
-		}
 
 		// This adds a simple command that can be triggered anywhere
 		this.addCommand({
