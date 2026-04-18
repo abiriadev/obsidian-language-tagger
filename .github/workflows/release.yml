@@ -9,6 +9,9 @@ on:
 env:
   PLUGIN_NAME: obsidian-language-tagger # Change this to match the id of your plugin.
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
