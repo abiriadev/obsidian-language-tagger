@@ -1,4 +1,4 @@
-import { Notice, Plugin } from 'obsidian'
+import { getFrontMatterInfo, Notice, Plugin } from 'obsidian'
 import {
 	DEFAULT_SETTINGS,
 	LanguageTaggerPluginSettings,
@@ -14,10 +14,25 @@ export default class LanguageTaggerPlugin extends Plugin {
 		const list = this.app.vault.getMarkdownFiles()
 
 		for (const tfile of list) {
-			const content = await this.app.vault.read(tfile)
-
 			// filter out non-top level notes
 			if (!tfile.parent?.isRoot()) continue
+
+			const rawContent = await this.app.vault.read(tfile)
+
+			const cache = this.app.metadataCache.getFileCache(tfile)
+
+			let content = rawContent
+
+			// check if frontmatter actually exists in this file
+			if (cache && cache.frontmatter) {
+				// The 'offset' is the exact character count where the frontmatter
+				// (including the closing '---') finishes.
+				// prettier-ignore
+				const endOffset = (cache.frontmatterPosition?.end.offset ?? (getFrontMatterInfo(content).contentStart - 1) + 1)
+
+				// slice the string from the end of the frontmatter onwards
+				content = rawContent.substring(endOffset).trimStart()
+			}
 
 			if (koRegex.test(content) || koRegex.test(tfile.basename)) {
 				this.app.fileManager.processFrontMatter(tfile, frontmatter => {
@@ -30,7 +45,7 @@ export default class LanguageTaggerPlugin extends Plugin {
 			}
 		}
 
-		new Notice('Language has tags has been applied.1')
+		new Notice('Language has tags has been applied.')
 	}
 
 	async onload() {
