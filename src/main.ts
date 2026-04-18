@@ -17,7 +17,7 @@ export default class LanguageTaggerPlugin extends Plugin {
 			const content = await this.app.vault.read(tfile)
 
 			// filter out non-top level notes
-			if (tfile.parent !== null) continue
+			if (!tfile.parent?.isRoot()) continue
 
 			if (koRegex.test(content) || koRegex.test(tfile.basename)) {
 				this.app.fileManager.processFrontMatter(tfile, frontmatter => {
@@ -30,7 +30,7 @@ export default class LanguageTaggerPlugin extends Plugin {
 			}
 		}
 
-		new Notice('Language has tags has been applied.')
+		new Notice('Language has tags has been applied.1')
 	}
 
 	async onload() {
