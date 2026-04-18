@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-language-tagger",
-	"version": "1.0.2",
+	"version": "1.1.0",
 	"description": "Naive language tagger plugin",
 	"main": "main.js",
 	"type": "module",

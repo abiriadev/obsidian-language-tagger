@@ -1,7 +1,7 @@
 {
 	"id": "obsidian-language-tagger",
 	"name": "Obsidian language tagger",
-	"version": "1.0.2",
+	"version": "1.1.0",
 	"minAppVersion": "0.15.0",
 	"description": "Naive language tagger plugin",
 	"author": "Abiria",
